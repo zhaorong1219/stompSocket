@@ -1,11 +1,28 @@
-tcp:  
-  port: 8090
-boss: 
-  thread:
-    count: 2
-worker: 
-  thread: 
-    count: 2
-so: 
-  keepalive:  true
-  backlog: 100
+server:
+  port: ${SERVER_PORT:9091}
+spring:
+  profiles:
+    active: ${ACTIVE:test}
+  application:
+    name: casino-websocket-server
+    websocket:
+      name: casion-stomp-websocket
+  jackson:
+    time-zone: GMT+8
+  main:
+    allow-circular-references: true
+  web:
+    resources:
+      static-locations: classpath:/
+
+
+#logging:
+#  level:
+#    root: info
+#    com.bet.cloud.mapper: DEBUG
+#  config: classpath:logback/logback-${spring.profiles.active}.xml
+#  file:
+#    path: ../bet-cloud/logs/
+websocket:
+  server:
+    port: 15674

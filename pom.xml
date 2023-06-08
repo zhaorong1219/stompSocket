@@ -1,0 +1,21 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.hks</groupId>
+    <artifactId>Netty</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Netty</name>
+    <modules>
+        <module>Netty-Demo</module>
+        <module>Netty-heartbeat</module>
+        <module>Netty-hello</module>
+        <module>Netty-httpServer</module>
+        <module>Netty-protobuf</module>
+        <module>Netty-reconnect</module>
+        <module>Netty-slidingWindow</module>
+        <module>Netty-unpack</module>
+    </modules>
+</project>
