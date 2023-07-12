@@ -19,13 +19,11 @@ package com.singgel.encoder;
 import com.singgel.handler.DealerPublisherHandler;
 import com.singgel.handler.StompWebSocketClientPageHandler;
 import com.singgel.server.StompVersion;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
-import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketFrameAggregator;
+import io.netty.handler.codec.http.websocketx.*;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler.HandshakeComplete;
 import io.netty.handler.codec.stomp.StompSubframe;
 import io.netty.handler.codec.stomp.StompSubframeAggregator;
@@ -43,8 +41,8 @@ public class StompWebSocketProtocolCodec extends MessageToMessageCodec<WebSocket
     private final StompWebSocketFrameEncoder stompWebSocketFrameEncoder = new StompWebSocketFrameEncoder();
     //    @Resource
 //    private  StompChatHandler stompChatHandler;
-
-    private final DealerPublisherHandler dealerPublisherHandler = new DealerPublisherHandler();
+    @Resource
+    private DealerPublisherHandler dealerPublisherHandler ;
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
@@ -56,7 +54,7 @@ public class StompWebSocketProtocolCodec extends MessageToMessageCodec<WebSocket
                     .addLast(new StompSubframeDecoder())
                     .addLast(new StompSubframeAggregator(65536))
                     .addLast(dealerPublisherHandler)
-            .remove(StompWebSocketClientPageHandler.INSTANCE);
+                    .remove(StompWebSocketClientPageHandler.INSTANCE);
         } else {
             super.userEventTriggered(ctx, evt);
         }
@@ -64,7 +62,6 @@ public class StompWebSocketProtocolCodec extends MessageToMessageCodec<WebSocket
 
     @Override
     protected void encode(ChannelHandlerContext ctx, StompSubframe stompFrame, List<Object> out) throws Exception {
-        System.out.println("---------------------->进行编码");
         stompWebSocketFrameEncoder.encode(ctx, stompFrame, out);
     }
 
@@ -72,9 +69,27 @@ public class StompWebSocketProtocolCodec extends MessageToMessageCodec<WebSocket
     protected void decode(ChannelHandlerContext ctx, WebSocketFrame webSocketFrame, List<Object> out) {
         System.out.println("---------------------->进行解码");
         if (webSocketFrame instanceof TextWebSocketFrame || webSocketFrame instanceof BinaryWebSocketFrame) {
+            String t  =  ((TextWebSocketFrame)webSocketFrame).text().trim();
+            //前端 心跳发送 空消息 后端返回
+            if(t.equals("")){
+                ctx.writeAndFlush(new TextWebSocketFrame(webSocketFrame.content().retain()));
+                return;
+            }
             out.add(webSocketFrame.content().retain());
-        } else {
-            ctx.close();
+            return;
         }
+        if (webSocketFrame instanceof PingWebSocketFrame) {
+            ctx.writeAndFlush(new PongWebSocketFrame(webSocketFrame.content().retain()));
+            return;
+        }
+        if (webSocketFrame instanceof CloseWebSocketFrame) {
+            ctx.writeAndFlush(webSocketFrame.retainedDuplicate()).addListener(ChannelFutureListener.CLOSE);
+            return;
+        }
+        if (webSocketFrame instanceof PongWebSocketFrame) {
+            return;
+        }
+
+        ctx.close();
     }
 }

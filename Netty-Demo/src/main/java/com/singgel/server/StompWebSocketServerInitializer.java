@@ -16,27 +16,30 @@
 package com.singgel.server;
 
 import com.singgel.encoder.StompWebSocketProtocolCodec;
-import com.singgel.handler.NettyServerHandler;
 import com.singgel.handler.StompWebSocketClientPageHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.internal.ObjectUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.concurrent.TimeUnit;
+
 
 @Component
 public class StompWebSocketServerInitializer extends ChannelInitializer<SocketChannel> {
 
     private final String publicPath;
-
-    private final StompWebSocketProtocolCodec stompWebSocketProtocolCodec;
+    @Resource
+    private StompWebSocketProtocolCodec stompWebSocketProtocolCodec;
 
     public StompWebSocketServerInitializer(String publicPath) {
         this.publicPath = ObjectUtil.checkNotNull(publicPath, "chatPath");
-        stompWebSocketProtocolCodec = new StompWebSocketProtocolCodec();
+
     }
 
     public StompWebSocketServerInitializer() {
@@ -48,9 +51,12 @@ public class StompWebSocketServerInitializer extends ChannelInitializer<SocketCh
         channel.pipeline()
                 .addLast(new HttpServerCodec())
                 .addLast(new HttpObjectAggregator(65536))
-                 .addLast(StompWebSocketClientPageHandler.INSTANCE)
+                .addLast(StompWebSocketClientPageHandler.INSTANCE)
                 .addLast(new WebSocketServerProtocolHandler(publicPath, StompVersion.SUB_PROTOCOLS))
-                .addLast(new NettyServerHandler())
-                .addLast(stompWebSocketProtocolCodec);
+                .addLast(stompWebSocketProtocolCodec)
+        //入参说明: 读超时时间、写超时时间、所有类型的超时时间、时间格式
+//                .addLast(new IdleStateHandler(60, 0, 0, TimeUnit.SECONDS))
+//                .addLast(new HeartBeatHandler())
+        ;
     }
 }

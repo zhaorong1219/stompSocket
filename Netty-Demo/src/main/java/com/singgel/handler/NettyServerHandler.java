@@ -7,11 +7,11 @@ import io.netty.handler.timeout.IdleStateEvent;
 
 /**
  * 
-* Title: HelloServerHandler
+* Title: NettyServerHandler
 * Description:  服务端业务逻辑
 * Version:1.0.0  
-* @author hekuangsheng
-* @date 2017年10月8日
+* @author zr
+* @date 2023年5月1日
  */
 public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 

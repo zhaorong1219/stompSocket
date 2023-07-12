@@ -10,6 +10,7 @@ import io.netty.handler.codec.stomp.DefaultStompFrame;
 import io.netty.handler.codec.stomp.StompCommand;
 import io.netty.handler.codec.stomp.StompFrame;
 import io.netty.util.CharsetUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.Charset;
@@ -24,6 +25,7 @@ import static io.netty.handler.codec.stomp.StompHeaders.*;
  * @author zr
  * @date 2023/01/13 11:22
  **/
+@Slf4j
 @Component
 @ChannelHandler.Sharable
 public class DealerPublisherHandler extends SimpleChannelInboundHandler<StompFrame> {
@@ -98,15 +100,15 @@ public class DealerPublisherHandler extends SimpleChannelInboundHandler<StompFra
         connectedFrame.headers()
                 .set(SERVER, "Websocket-Server")
                 .set(VERSION, handshakeAcceptVersion.version())
-                .set(HEART_BEAT, "0,0");
-       String contentType= inboundFrame.headers().getAsString(CONTENT_TYPE);
-       if(contentType!=null){
-           connectedFrame.headers().set(CONTENT_TYPE, contentType);
-       } else {
-           connectedFrame.headers().set(CONTENT_TYPE, "text/html;charset=utf-8");
-       }
+                .set(HEART_BEAT, "5000,5000");
+        String contentType= inboundFrame.headers().getAsString(CONTENT_TYPE);
+        if(contentType!=null){
+            connectedFrame.headers().set(CONTENT_TYPE, contentType);
+        } else {
+            connectedFrame.headers().set(CONTENT_TYPE, "text/html;charset=utf-8");
+        }
 
-        ctx.writeAndFlush(connectedFrame);
+        ctx.writeAndFlush(connectedFrame.retain());
     }
 
     private static void sendErrorFrame(String message, String description, ChannelHandlerContext ctx) {

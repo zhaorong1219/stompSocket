@@ -22,13 +22,10 @@ function connect(event) {
     if (username) {
         usernamePage.classList.add('hidden');
         chatPage.classList.remove('hidden');
-        console.log("日你妹");
-        var url = "ws://127.0.0.1:15674/ws/public"
-        //var url = "http://127.0.0.1:8500/whaleSocial"
-        //var socket = new SockJS(url);
-        // 使用 STOMP 子协议的 WebSocket 客户端
-        //stompClient = Stomp.over(socket)
-        stompClient = Stomp.client(url);
+        // var socket = new SockJS('http://127.0.0.1:9091/ws');
+        // stompClient = Stomp.over(socket);
+        var socket = 'ws://127.0.0.1:15674/ws/public';
+        stompClient = Stomp.client(socket);
 
         stompClient.connect({
             username: username
@@ -41,14 +38,11 @@ function connect(event) {
 
 function onConnected() {
 
-    // Subscribe to the Public Topic
-    stompClient.subscribe('/topic/public', onMessageReceived);
-
-    //额外订阅了mike频道,暂时当做自己的频道,别人需要特意往这个频道发送消息,才能完成 ‘单对单’
-    stompClient.subscribe('/user/A010101/topic/msg', onMessageReceived);
+    // Subscribe to the Public Topic  订阅room2 房间号
+    stompClient.subscribe('/topic/room2', onMessageReceived);
 
     // Tell your username to the server
-    stompClient.send("/app/chat.addUser",
+    stompClient.send("/topic/room2",
         {},
         JSON.stringify({sender: username, type: 'JOIN', to: 'all'})
     )
@@ -75,13 +69,14 @@ function sendMessage(event) {
 
         };
         console.log("----- ：" + messageInput.value);
-        stompClient.send("/app/chat.sendMessageTest", {}, JSON.stringify(chatMessage));
+        //发送消息 给 room2 房间号
+        stompClient.send("/topic/room2", {}, JSON.stringify(chatMessage));
         messageInput.value = '';
     }
     event.preventDefault();
 }
 
-
+//接受消息
 function onMessageReceived(payload) {
     console.log("----- ：" + payload.body);
     var message = JSON.parse(payload.body);
