@@ -4,9 +4,9 @@ spring:
   profiles:
     active: ${ACTIVE:test}
   application:
-    name: casino-websocket-server
+    name: websocket-server
     websocket:
-      name: casion-stomp-websocket
+      name: stomp-websocket
   jackson:
     time-zone: GMT+8
   main:
