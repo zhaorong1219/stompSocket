@@ -168,13 +168,6 @@ public class DealerPublisherHandler extends SimpleChannelInboundHandler<StompFra
 
         }
 
-//        Map<String,Object> fake=new HashMap<String, Object>();
-//        fake.put("detectionVideoUrl","webrtc://srs.htsmartpay.com:443/live/baccarat01");
-//        fake.put("dealCountdownTime",5);
-      //  ctx.writeAndFlush(transformToMessage(JSONObject.toJSONString(fake),subscription));
-
-
-
     }
 
     public void send(String message, String routing) {
